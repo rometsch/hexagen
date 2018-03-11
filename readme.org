@@ -1,0 +1,30 @@
+#+TITLE: Hexagen : A Hexaflexagon Generator
+#+AUTHOR: Thomas Rometsch
+
+
+* Description
+
+A hexaflexagon is a strip of paper folded into a hexagonal shape.
+It obviously shows two surfaces, but it also hides one or more
+additional surfaces.
+
+This is a generator to automatically make a template of a
+hexahexafelxagon out of six hexagonal images ready for printing.
+You only need to print the pdf, cut out the shape, fold it and glue it.
+
+* Implementation details
+
+The generator is implemented in HTML5 and Javascript.
+It should run in almost every modern browser.
+Computation is completly done on client side, so the page
+can be downloaded an run locally.
+
+* Code
+
+This is an [[https://orgmode.org/][org-mode]] file and the final html file is [[https://orgmode.org/manual/Extracting-source-code.html][tangled]] from it.
+
+** header
+
+#+BEGIN_HTML :tangle hexagen.html
+
+#+END_HTML
