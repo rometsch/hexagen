@@ -23,8 +23,47 @@ can be downloaded an run locally.
 
 This is an [[https://orgmode.org/][org-mode]] file and the final html file is [[https://orgmode.org/manual/Extracting-source-code.html][tangled]] from it.
 
-** header
+As a base, to implement the pdf export, use example code from a [[https://stackoverflow.com/questions/19699366/html5-canvas-to-pdf][stackoverflow thread]] posted [[http://jsfiddle.net/uf2L0pww/][jsfiddle]].
 
-#+BEGIN_HTML :tangle hexagen.html
 
-#+END_HTML
+** rotating images in center
+
+Code and idea from this [[https://stackoverflow.com/questions/8936803/rotating-around-an-arbitrary-point-html5-canvas#8936985][stackoverflow thread]].
+First move context to center, then rotate, then move back.
+
+** extracting a part of the image
+
+Use pahts to extract a part like [[https://stackoverflow.com/questions/30565987/cropping-images-with-html5-canvas-in-a-non-rectangular-shape-and-transforming][here]].
+
+** placement of triangles
+
+The position of the triangles is given at the center of the triangle.
+
+** grid for orientation
+
+[[https://devhammer.net/blog/exploring-html5-canvas-part-4-transformations/][This blog post]] has some lines of code to draw a grid onto a canvas which help a lot in understanding it.
+
+* Geometry
+
+For equiliteral triangles the important angle is 60 degree.
+Some numbers
+
++ cos(60) = 0.5
++ sin(60) = 0.8660254037844386
++ sin(60)/2 = 0.4330127018922193
++ 60 degree = 1.0471975511965976 rad
+
+* Canvas details
+
+Using the canvas object of HTML5, operations need to be performed on the context of the canvas, which is its underlying coordinate system.
+This is quite unintuitive, but it probably saves the need of performing all the image manipulation operations when an image is drawn onto a surface in a compicated manner.
+
+* Milestones
+
+** clip and rotate in place
+
+An example of a working code for extracting a part of an image and rotating this part can be found in [[file:milestones/clip_rotate/hexagen.html]].
+
+** clip, rotate and move
+
+An example of a working code for extracting a polygon (triangle), rotating in around its center and then placing it at an arbitrary position can be found in [[file:milestones/place_clip_rot/hexagen.html]].
