@@ -6,12 +6,16 @@ var ctx1=canvas1.getContext("2d");
 // Coordinates of an equiliteral triangle measured from the center
 // and in units of half of the longest direction.
 // n = 0,1,2,3,4,5
-function triangleCoord(n) {
-	var T = {
-		a : { x : 0, y : 0 },
-		b : { x : Math.cos(n*60/180*Math.PI), y : -Math.sin(n*60/180*Math.PI) },
-		c : { x : Math.cos((n+1)*60/180*Math.PI), y : -Math.sin((n+1)*60/180*Math.PI) }
+function equiTriFromCenter(n, vert) {
+	// equiliteral trianlge with relative coordinates from center
+	if (vert) {
+		n = n + 0.5;
 	}
+	var T = [
+		[0, 0],
+		[Math.cos(n*60/180*Math.PI), -Math.sin(n*60/180*Math.PI)],
+		[Math.cos((n+1)*60/180*Math.PI), -Math.sin((n+1)*60/180*Math.PI)],
+	]
 	return T;
 };
 
@@ -26,7 +30,7 @@ function start(){
 	var cw=canvas0.width=img.width;
 	var ch=canvas0.height=img.height;
 
-	canvas1.width = cw;
+	canvas1.width = 4*cw;
 	canvas1.height = ch;
 
 	// draw the example image on the source canvas
@@ -37,36 +41,65 @@ function start(){
 
 	var Ntriangle = 2;
 
-	var posx = 200;
-	var posy = 300;
+	var Lx = cw/2;
+	var Ly = ch/2*Math.sin(60*Math.PI/180);
 
-	markTriangle(triangleCoord(Ntriangle), img , ctx0);
-	placeRotatedClippedTriangle(triangleCoord(Ntriangle), posx, posy, 3, img , ctx1);
 
+
+	for (i=0; i<6; i++) {
+		markTriangle(equiTriFromCenter(i, false), img , ctx0);
+		//placeRotatedClippedTriangle(equiTriFromCenter(i, false), (i+1)*Lx, Ly, i-(i%2), img , ctx1);
+		palceTriInTemplate(0, i, i*2, i, img, ctx1, Lx);
+	}
 }
 
-function placeRotatedClippedTriangle(triangle, posx, posy, rot, img, ctx) {
-	// clear the destination canvas
-	//ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+function posLayoutGrid(p, row, baselength) {
+	// Coordinates of the triangle position in row *row*
+	var pos = [(p+1)*baselength/2 ,
+				(row+0.5)*baselength*Math.sin(60*Math.PI/180)]
+	return pos;
+}
+
+function palceTriInTemplate(row, p, r, n, img, ctx, baselen) {
+	// place the *n*th triangle from image *img* in row *row*
+	// at position *pos* rotated by *r* times 60 degree.
+	var triangle = equiTriFromCenter(n, false);
+	var pos = posLayoutGrid(p, row, baselen)
+	// caculate offset needed to place the center of the triangle at the right pos
+	// the oritentation (up/down facing) is reversed with every rotation by 60 degree
+	// and the original triangle faces upwards for even numbers
+	if ( (n+r)%2 == 0) {
+		// upwards
+		pos[1] = pos[1] + baselen*Math.sin(60*Math.PI/180)/6;
+	} else {
+		// downwards
+		pos[1] = pos[1] - baselen*Math.sin(60*Math.PI/180)/6;
+	}
+	placeRotatedClippedTriangle(triangle, pos[0], pos[1], r, img, ctx)
+}
+
+function placeRotatedClippedTriangle(T, posx, posy, rot, img, ctx) {
 
 	var len = Math.min(img.width, img.height)/2;
-
 	ctx.save();
-	renderGrid(20, "black", canvas1)
+
+	//renderGrid(len/10, 'red', canvas1)
 
 	// offset to center triangle on image center
 	var dximg = img.width/2;
 	var dyimg = img.height/2;
 
-	var x0 = triangle.a.x*len + dximg;
-	var y0 = triangle.a.y*len + dyimg;
-	var x1 = triangle.b.x*len + dximg;
-	var y1 = triangle.b.y*len + dyimg;
-	var x2 = triangle.c.x*len + dximg;
-	var y2 = triangle.c.y*len + dyimg;
+	var x0 = T[0][0]*len + dximg;
+	var y0 = T[0][1]*len + dyimg;
+	var x1 = T[1][0]*len + dximg;
+	var y1 = T[1][1]*len + dyimg;
+	var x2 = T[2][0]*len + dximg;
+	var y2 = T[2][1]*len + dyimg;
 
-	var centerx = (x0+x1+x2)/3;
-	var centery = (y0+y1+y2)/3;
+	// center position = point on the central vertical line at half height
+
+	var centerx = (x0+x1+x2)/3
+	var centery = (y0+y1+y2)/3
 
 	var dx = posx - centerx;
 	var dy = posy - centery;
@@ -74,22 +107,10 @@ function placeRotatedClippedTriangle(triangle, posx, posy, rot, img, ctx) {
 	// Final placement of clipped and rotated image
 	ctx.translate(dx,dy);
 
-	renderGrid(20, "red", canvas1)
-
 	// Rotation
 	ctx.translate(centerx, centery);
 	ctx.rotate(rot*60/180*Math.PI);
 	ctx.translate(-centerx, -centery);
-
-
-
-	// ctx.fillStyle = "#0000ff";
-	// //ctx.fillRect(centerx-5,centery-5, 10, 10);
-	// ctx.beginPath();
-	// ctx.arc( centerx, centery, len/20, 0, 360, false);
-	// ctx.lineWidth = 3;
-	// ctx.strokeStyle = 'black';
-    // ctx.stroke();
 
 	// Clipping
 	ctx.beginPath();
@@ -114,8 +135,21 @@ function placeRotatedClippedTriangle(triangle, posx, posy, rot, img, ctx) {
 	ctx.restore();
 };
 
+function markPosition(x,y,radius,ctx) {
+	// Mark a position with a circle
+	ctx.save();
 
-function markTriangle(triangle, img, ctx) {
+	// Stroke boundary
+	ctx.beginPath();
+	ctx.arc(x,y,radius,0,360);
+	ctx.closePath();
+	ctx.stroke();
+
+	ctx.restore();
+}
+
+
+function markTriangle(T, img, ctx) {
 
 	var len = Math.min(img.width, img.height)/2;
 
@@ -125,12 +159,12 @@ function markTriangle(triangle, img, ctx) {
 	var dximg = img.width/2;
 	var dyimg = img.height/2;
 
-	var x0 = triangle.a.x*len + dximg;
-	var y0 = triangle.a.y*len + dyimg;
-	var x1 = triangle.b.x*len + dximg;
-	var y1 = triangle.b.y*len + dyimg;
-	var x2 = triangle.c.x*len + dximg;
-	var y2 = triangle.c.y*len + dyimg;
+	var x0 = T[0][0]*len + dximg;
+	var y0 = T[0][1]*len + dyimg;
+	var x1 = T[1][0]*len + dximg;
+	var y1 = T[1][1]*len + dyimg;
+	var x2 = T[2][0]*len + dximg;
+	var y2 = T[2][1]*len + dyimg;
 
 	// Stroke boundary
 	ctx.beginPath();
@@ -148,7 +182,6 @@ function markTriangle(triangle, img, ctx) {
 function renderGrid(gridPixelSize, color, canvas)
 {
 	var ctx=canvas.getContext("2d");
-
     //ctx.save();
     ctx.lineWidth = 0.5;
     ctx.strokeStyle = color;
