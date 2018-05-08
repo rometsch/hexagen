@@ -67,3 +67,98 @@ An example of a working code for extracting a part of an image and rotating this
 ** clip, rotate and move
 
 An example of a working code for extracting a polygon (triangle), rotating in around its center and then placing it at an arbitrary position can be found in [[file:milestones/place_clip_rot/hexagen.html]].
+* Test
+
+Printed the standard template with the testimages A to F.
+Result
+
+| Side | OK ?               | Type | goto off  |
+|------+--------------------+------+-----------|
+| A    | wrong patter I     | main | E         |
+|------+--------------------+------+-----------|
+| B    | ...                | main | F         |
+|------+--------------------+------+-----------|
+| C    | ...                | main | D         |
+|------+--------------------+------+-----------|
+| D    |                    | off  |           |
+|------+--------------------+------+-----------|
+| E    | numbers wrong as D | off  |           |
+|------+--------------------+------+-----------|
+| F    | numbers wrong as D | off  |           |
+|      |                    |      |           |
+
+Correct pattern I, change
+
+| 1 | 3 |
+| 4 | 6 |
+
+and pattern II, change
+
+| 2 | 6 |
+| 3 | 5 |
+
+Also associate A->D, B->E, C->F.
+
+The new standard template is
+
+#+BEGIN_SRC javascript
+var templateStd = [
+	// 1st main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 7, 4, 1, 16, 13, 10 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+	// 2nd main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 9, 6, 3, 18, 15, 12 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+	// 3rd main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 11, 8, 5, 2, 17, 14 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+
+	// 1st off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 8, 3, 2, 15, 14, 9 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] },
+	// 2nd off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 4, 17, 16, 11, 10, 5 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] },
+	// 3ed off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 6, 19, 18, 13, 12, 7 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] }
+]
+#+END_SRC
+
+and the original was
+
+#+BEGIN_SRC javascript
+var templateStd = [
+	// 1st main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 1, 4, 7, 10, 13, 16 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+	// 2nd main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 3, 6, 9, 12, 15, 18 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+	// 3rd main side
+	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	  p   : [ 5, 8, 11, 14, 17, 2 ] ,
+	  row : [ 0, 0, 0, 0, 0, 0 ] },
+
+	// 1st off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 4, 5, 10, 11, 16, 17 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] },
+	// 2nd off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 6, 7, 12, 13, 18, 19 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] },
+	// 3rd off side
+	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	  p   : [ 8, 9, 14, 15, 2, 3 ] ,
+	  row : [ 1, 1, 1, 1, 1, 1 ] }
+]
+#+END_SRC
