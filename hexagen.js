@@ -1,12 +1,96 @@
+function el(id){return document.getElementById(id);} // Get elem by ID
+
+class hexImg {
+	constructor(img) {
+		// assume image is loaded
+		this.img = img;
+		this.determineOrientation();
+	}
+
+	getTriangle(n) {
+		return equiTriFromCenter(n, this.is_vertical);
+	}
+
+	determineOrientation() {
+		let w = img.width;
+		let h = img.height;
+
+		if (w>=h) {
+			this.is_vertical = false;
+		} else {
+			this.is_vertical = true;
+		}
+	}
+
+	getSidelen() {
+		// The side length of the triangles, determined by the smallest length
+		let w = this.img.width;
+		let h = this.img.height;
+		if (this.is_vertical) {
+			// make sure the hexagon does not exceed image dimensions
+			if ( h*Math.sin(60*Math.PI/180) > w ) {
+				return w/Math.sin(60*Math.PI/180);
+			} else {
+				return h/2;
+			}
+		} else {
+			if ( w*Math.sin(60*Math.PI/180) > h ) {
+				return h/Math.sin(60*Math.PI/180);
+			} else {
+				return w/2;
+			}
+		}
+	}
+
+	scale(baselen) {
+		return baselen/this.getSidelen();
+	}
+
+	scaledWidth(baselen) {
+		// width such that the image produces a triangle with the desired baselength
+		return this.img.width*this.scale(baselen);
+	}
+
+	scaledHeight(baselen) {
+		// height such that the image produces a triangle with the desired baselength
+		return this.img.height*this.scale(baselen);
+	}
+}
 
 var Nimgs = 6
 var loadedCounter = 0;
 
 var imgs = [];
+var heximgs = [];
 var ctxs = [];
 var canvass = [];
 
-var canvasT=document.getElementById("canvasTemplate");
+var active_canvas = 0;
+
+var fileElem = el("fileElem");
+fileElem.addEventListener("change", readImage, false);
+
+// Initialize thumbnail canvas with mouse over event handler
+for (i=0; i<6; i++) {
+	canvas = el("canvas"+ i)
+	canvass.push(canvas);
+	ctx = canvas.getContext("2d")
+	ctxs.push(ctx);
+	canvas.addEventListener("mouseover",
+		(function(value){
+			return function(){
+				active_canvas = value;
+			}
+		})(i) , false );
+	canvas.addEventListener("click",
+		function (e) {
+			if (fileElem) {
+				fileElem.click();
+			}
+		} , false );
+}
+
+var canvasT=el("canvasTemplate");
 var ctxT=canvasT.getContext("2d");
 
 // Simplest template without break, simply print, fold in middle and glue
@@ -42,7 +126,8 @@ var templateStd = [
 	  p   : [ 6, 19, 18, 13, 12, 7 ] ,
 	  row : [ 1, 1, 1, 1, 1, 1 ] }
 ]
-var filenames = [
+
+var testimages = [
 	"testimages/A.png",
 	"testimages/B.png",
 	"testimages/C.png",
@@ -50,54 +135,105 @@ var filenames = [
 	"testimages/E.png",
 	"testimages/F.png" ]
 
-for (i=0; i<Nimgs; i++) {
-	canvas = document.getElementById("canvas"+ i)
-	canvass.push(canvas);
-	ctx = canvas.getContext("2d")
-	ctxs.push(ctx);
-	img = new Image();
-	imgs.push(img);
-	img.onload = (function(value){
-       return function(){
-           printOnCanvas(canvass[value], imgs[value]);
-		   checkAllLoaded();
-       }
-   })(i);
-	img.src = "cats/" + (i+1) + ".png"; //filenames[i];
+var catfiles = [
+	"cats/1.png",
+	"cats/2.png",
+	"cats/3.png",
+	"cats/4.png",
+	"cats/5.png",
+	"cats/6.png" ]
+
+function reset() {
+	imgs = []
+	loadedCounter = 0
 }
 
-function checkAllLoaded() {
-	loadedCounter = loadedCounter + 1;
-	if (loadedCounter == Nimgs) {
-		makeTemplate(imgs);
+function changeImage(i) {
+	// img = new Image();
+	// imgs.push(img);
+	// img.onload = (function(value){
+	// 	return function(){
+	// 		printOnCanvas(canvass[value], imgs[value]);
+	// 		checkAllLoaded();
+	// 	}
+	// })(i);
+	// img.src = filenames[i];
+}
+
+function readImage() {
+    if ( this.files && this.files[0] ) {
+        var FR = new FileReader();
+        FR.onload = function(e) {
+			var img = new Image();
+			img.addEventListener("load", function() {
+				applyImg(active_canvas, img);
+           });
+           img.src = e.target.result;
+        };
+        FR.readAsDataURL( this.files[0] );
+    }
+}
+
+function loadFiles(filenames) {
+	reset();
+	for (i=0; i<Nimgs; i++) {
+		img = new Image();
+		img.onload = (function(value, image){
+			return function(){
+				applyImg(value, image);
+			}
+		})(i, img);
+		img.src = filenames[i];
 	}
 }
 
-function makeTemplate(imgs){
+function applyImg(slot, img) {
+	heximg = new hexImg(img);
+	imgs[slot] = heximg;
+	printOnCanvas(canvass[slot], heximg);
+	checkAllLoaded();
+}
 
-	iw = imgs[0].width;
-	ih = imgs[0].height;
+function checkAllLoaded() {
+	if (loadedCounter < Nimgs) {
+		loadedCounter = loadedCounter + 1;
+	}
+	if (loadedCounter == Nimgs) {
+		makeTemplate();
+	}
+}
 
-	var Lx = iw/2;
-	var Ly = ih/2*Math.sin(60*Math.PI/180);
+function makeTemplate(){
+	// Baselength of the hexagons in the result
+	// take the smallest length b.c. its probably better to scale down
+	// than to scale up
+	let baselen = Math.min(imgs[0].getSidelen(), imgs[1].getSidelen());
+
+	for (i=2; i<imgs.length; i++) {
+		baselen = Math.min(baselen, imgs[i].getSidelen());
+	}
+
+	let iw = imgs[0].img.width;
+	let ih = imgs[0].img.height;
+
+	var Lx = baselen;
+	var Ly = baselen*Math.sin(60*Math.PI/180);
 
 	canvasTemplate.width = 10*Lx;
 	canvasTemplate.height = 2*Ly;
 
 	for (k=0; k<imgs.length; k++) {
 
-		img = imgs[k];
+		heximg = imgs[k];
 		ctx = ctxs[k];
 		templateMap = templateStd[k];
 
 		for (i=0; i<6; i++) {
-			T = equiTriFromCenter(i, false);
-			//markTriangle(T, img , ctx);
 			row = templateMap.row[i];
 			p = templateMap.p[i];
 			r = templateMap.r[i];
 			n = i;
-			palceTriInTemplate(row, p, r, n, img, ctxT, Lx)
+			palceTriInTemplate(row, p, r, n, heximg, ctxT, baselen)
 		}
 	}
 }
@@ -125,10 +261,10 @@ function posLayoutGrid(p, row, baselength) {
 	return pos;
 }
 
-function palceTriInTemplate(row, p, r, n, img, ctx, baselen) {
+function palceTriInTemplate(row, p, r, n, heximg, ctx, baselen) {
 	// place the *n*th triangle from image *img* in row *row*
 	// at position *pos* rotated by *r* times 60 degree.
-	let triangle = equiTriFromCenter(n, false);
+	let T = heximg.getTriangle(i);
 	let pos = posLayoutGrid(p, row, baselen)
 	// caculate offset needed to place the center of the triangle at the right pos
 	// the oritentation (up/down facing) is reversed with every rotation by 60 degree
@@ -140,19 +276,26 @@ function palceTriInTemplate(row, p, r, n, img, ctx, baselen) {
 		// downwards
 		pos[1] = pos[1] - baselen*Math.sin(60*Math.PI/180)/6;
 	}
-	placeRotatedClippedTriangle(triangle, pos[0], pos[1], r, img, ctx)
+	placeRotatedClippedTriangle(T, pos[0], pos[1], r, heximg, ctx, baselen)
 }
 
-function placeRotatedClippedTriangle(T, posx, posy, rot, img, ctx) {
+function placeRotatedClippedTriangle(T, posx, posy, rot, heximg, ctx, baselen) {
 
-	let len = Math.min(img.width, img.height)/2;
+	// let len = Math.min(heximg.img.width, heximg.img.height)/2;
+	let len = baselen;
+	let s = heximg.scale(baselen);
+
 	ctx.save();
 
 	//renderGrid(len/10, 'red', canvas1)
 
 	// offset to center triangle on image center
-	let dximg = img.width/2;
-	let dyimg = img.height/2;
+	// let dximg = heximg.img.width/2;
+	// let dyimg = heximg.img.height/2;
+	// let dximg = len;
+	// let dyimg = len;
+	let dximg = s*heximg.img.width/2;
+	let dyimg = s*heximg.img.height/2;
 
 	let x0 = T[0][0]*len + dximg;
 	let y0 = T[0][1]*len + dyimg;
@@ -162,7 +305,6 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, img, ctx) {
 	let y2 = T[2][1]*len + dyimg;
 
 	// center position = point on the central vertical line at half height
-
 	let centerx = (x0+x1+x2)/3
 	let centery = (y0+y1+y2)/3
 
@@ -186,7 +328,7 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, img, ctx) {
 	//ctx.stroke();
 	ctx.clip();
 
-	ctx.drawImage(img, 0, 0);
+	ctx.drawImage(heximg.img, 0, 0, s*heximg.img.width, s*heximg.img.height);
 
 	// Stroke boundary
 	ctx.beginPath();
@@ -213,16 +355,24 @@ function markPosition(x,y,radius,ctx) {
 	ctx.restore();
 }
 
+function markTriangles(canvas, img) {
+	for (i=0; i<6; i++) {
+		markTriangle(equiTriFromCenter(i, false), canvas, img);
+	}
+}
 
-function markTriangle(T, img, ctx) {
+function markTriangle(T, canvas, img) {
 
-	let len = Math.min(img.width, img.height)/2;
+	let ctx = canvas.getContext("2d");
+	let len = Math.min(canvas.width, canvas.height)/2;
 
 	ctx.save();
 
 	// offset to center triangle on image center
-	let dximg = img.width/2;
-	let dyimg = img.height/2;
+	// let dximg = img.width/2;
+	// let dyimg = img.height/2;
+	let dximg = len;
+	let dyimg = len;
 
 	let x0 = T[0][0]*len + dximg;
 	let y0 = T[0][1]*len + dyimg;
@@ -230,6 +380,9 @@ function markTriangle(T, img, ctx) {
 	let y1 = T[1][1]*len + dyimg;
 	let x2 = T[2][0]*len + dximg;
 	let y2 = T[2][1]*len + dyimg;
+
+	ctx.lineWidth = 0.5;
+    ctx.strokeStyle = "black";
 
 	// Stroke boundary
 	ctx.beginPath();
@@ -273,11 +426,12 @@ function renderGrid(gridPixelSize, color, canvas)
     //ctx.restore();
 }
 
-function printOnCanvas(canvas, img) {
+function printOnCanvas(canvas, heximg) {
 	let ctx = canvas.getContext("2d");
 	ctx.save();
 	let len = canvas.width;
-	ctx.drawImage(img, 0, 0, len, len);
+	ctx.drawImage(heximg.img, 0, 0, len, len);
+	markTriangles(canvas, heximg.img);
 	ctx.restore();
 }
 
