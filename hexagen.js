@@ -481,22 +481,3 @@ function printOnCanvas(canvas, heximg) {
 	markTriangles(canvas, heximg);
 	ctx.restore();
 }
-
-
-// PDF export inspired by
-// https://stackoverflow.com/questions/19699366/html5-canvas-to-pdf#27370253
-// in jsfiddle http://jsfiddle.net/p4s5k59s/1222/
-function downloadPdf() {
-    var imgData = canvasTemplate.toDataURL(
-        'image/png');
-    var doc = new jsPDF('l', 'mm', 'a4');
-
-	let cw = canvasTemplate.width;
-	let ch = canvasTemplate.height;
-
-	let w = 0.9*550; // 90% of a4 length in pts
-	let h = w*ch/cw;
-	let bor = 0.05*w/0.9;
-    doc.addImage(imgData, 'PNG', bor, bor, w, h);
-    doc.save('sample-file.pdf');
-}
