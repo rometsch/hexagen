@@ -12,7 +12,14 @@ body {
 </style>
 
 <body>
-
+  <h2>
+	This is the hexaflexogon generator.
+  </h2>
+  <p>
+	Double click on the preview images to load a file or drag and drop them.
+	The template
+  </p>
+  <button id="mappingtester" onclick="loadFiles(testimages)">Test Mapping</button>
   <div>
 	<canvas id="canvas0" width=150 height=150></canvas>
 	<canvas id="canvas1" width=150 height=150></canvas>
@@ -24,8 +31,8 @@ body {
 	<canvas id="canvas5" width=150 height=150></canvas>
   </div>
 
-  <button id="mappingtester" onclick="loadFiles(testimages)">Test Mapping</button>
-  <button id="cats" onclick="loadFiles(catfiles)">Cats</button>
+
+  <!-- <button id="cats" onclick="loadFiles(catfiles)">Cats</button> -->
   <canvas id="canvasTemplate" width=0 height=0></canvas>
 
   <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
