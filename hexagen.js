@@ -7,7 +7,11 @@ class hexImg {
 		this.determineOrientation();
 	}
 
-	getTriangle(n) {
+	toogleOrientation() {
+		this.is_vertical = !this.is_vertical;
+	}
+
+	getTriangle(n, horizontal) {
 		return equiTriFromCenter(n, this.is_vertical);
 	}
 
@@ -57,6 +61,10 @@ class hexImg {
 	}
 }
 
+function toogleOrientationWrapper(heximg) {
+	heximg.toogleOrientation();
+}
+
 var Nimgs = 6
 var loadedCounter = 0;
 
@@ -82,12 +90,49 @@ for (i=0; i<6; i++) {
 				active_canvas = value;
 			}
 		})(i) , false );
+	canvas.addEventListener("dragover",
+		(function(value){
+			return function(){
+				active_canvas = value;
+			}
+		})(i) , false );
+
 	canvas.addEventListener("click",
-		function (e) {
+		function(){
+			toogleOrientationWrapper(imgs[active_canvas]);
+			applyImg(active_canvas);
+			} , false );
+	canvas.addEventListener("dblclick",
+		function () {
 			if (fileElem) {
 				fileElem.click();
 			}
 		} , false );
+
+	// from https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications
+	canvas.addEventListener("dragenter", dragenter, false);
+	canvas.addEventListener("dragover", dragover, false);
+	canvas.addEventListener("drop", drop, false);
+}
+
+function dragenter(e) {
+  e.stopPropagation();
+  e.preventDefault();
+}
+
+function dragover(e) {
+  e.stopPropagation();
+  e.preventDefault();
+}
+
+function drop(e) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  var dt = e.dataTransfer;
+  var files = dt.files;
+
+  loadImage(files);
 }
 
 var canvasT=el("canvasTemplate");
@@ -148,30 +193,22 @@ function reset() {
 	loadedCounter = 0
 }
 
-function changeImage(i) {
-	// img = new Image();
-	// imgs.push(img);
-	// img.onload = (function(value){
-	// 	return function(){
-	// 		printOnCanvas(canvass[value], imgs[value]);
-	// 		checkAllLoaded();
-	// 	}
-	// })(i);
-	// img.src = filenames[i];
-}
-
 function readImage() {
     if ( this.files && this.files[0] ) {
-        var FR = new FileReader();
-        FR.onload = function(e) {
-			var img = new Image();
-			img.addEventListener("load", function() {
-				applyImg(active_canvas, img);
-           });
-           img.src = e.target.result;
-        };
-        FR.readAsDataURL( this.files[0] );
+        loadImage(this.files);
     }
+}
+
+function loadImage(files) {
+	var FR = new FileReader();
+    FR.onload = function(e) {
+		var img = new Image();
+		img.addEventListener("load", function() {
+			insertImg(active_canvas, img);
+        });
+        img.src = e.target.result;
+    };
+    FR.readAsDataURL( files[0] );
 }
 
 function loadFiles(filenames) {
@@ -180,21 +217,25 @@ function loadFiles(filenames) {
 		img = new Image();
 		img.onload = (function(value, image){
 			return function(){
-				applyImg(value, image);
+				insertImg(value, image);
 			}
 		})(i, img);
 		img.src = filenames[i];
 	}
 }
 
-function applyImg(slot, img) {
+function insertImg(slot, img) {
 	heximg = new hexImg(img);
 	imgs[slot] = heximg;
-	printOnCanvas(canvass[slot], heximg);
-	checkAllLoaded();
+	applyImg(slot);
 }
 
-function checkAllLoaded() {
+function applyImg(slot) {
+	printOnCanvas(canvass[slot], imgs[slot]);
+	makeTemplateWhenLoaded();
+}
+
+function makeTemplateWhenLoaded() {
 	if (loadedCounter < Nimgs) {
 		loadedCounter = loadedCounter + 1;
 	}
@@ -203,7 +244,7 @@ function checkAllLoaded() {
 	}
 }
 
-function makeTemplate(){
+function makeTemplate() {
 	// Baselength of the hexagons in the result
 	// take the smallest length b.c. its probably better to scale down
 	// than to scale up
@@ -264,7 +305,9 @@ function posLayoutGrid(p, row, baselength) {
 function palceTriInTemplate(row, p, r, n, heximg, ctx, baselen) {
 	// place the *n*th triangle from image *img* in row *row*
 	// at position *pos* rotated by *r* times 60 degree.
-	let T = heximg.getTriangle(i);
+	//alert(heximg.is_vertical)
+	let T = heximg.getTriangle(n);
+	// let T = equiTriFromCenter(n, false);
 	let pos = posLayoutGrid(p, row, baselen)
 	// caculate offset needed to place the center of the triangle at the right pos
 	// the oritentation (up/down facing) is reversed with every rotation by 60 degree
@@ -315,8 +358,12 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, heximg, ctx, baselen) {
 	ctx.translate(dx,dy);
 
 	// Rotation
+	if (heximg.is_vertical) {
+		rot = rot + 0.5;
+	}
 	ctx.translate(centerx, centery);
 	ctx.rotate(rot*60/180*Math.PI);
+
 	ctx.translate(-centerx, -centery);
 
 	// Clipping
@@ -331,12 +378,12 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, heximg, ctx, baselen) {
 	ctx.drawImage(heximg.img, 0, 0, s*heximg.img.width, s*heximg.img.height);
 
 	// Stroke boundary
-	ctx.beginPath();
-	ctx.moveTo(x0, y0);
-	ctx.lineTo(x1, y1);
-	ctx.lineTo(x2, y2);
-	ctx.closePath();
-	ctx.stroke();
+	// ctx.beginPath();
+	// ctx.moveTo(x0, y0);
+	// ctx.lineTo(x1, y1);
+	// ctx.lineTo(x2, y2);
+	// ctx.closePath();
+	// ctx.stroke();
 
 	// restore the context to it's unclipped untransformed state
 	ctx.restore();
@@ -355,9 +402,9 @@ function markPosition(x,y,radius,ctx) {
 	ctx.restore();
 }
 
-function markTriangles(canvas, img) {
+function markTriangles(canvas, heximg) {
 	for (i=0; i<6; i++) {
-		markTriangle(equiTriFromCenter(i, false), canvas, img);
+		markTriangle(equiTriFromCenter(i, heximg.is_vertical), canvas, heximg.img);
 	}
 }
 
@@ -431,7 +478,7 @@ function printOnCanvas(canvas, heximg) {
 	ctx.save();
 	let len = canvas.width;
 	ctx.drawImage(heximg.img, 0, 0, len, len);
-	markTriangles(canvas, heximg.img);
+	markTriangles(canvas, heximg);
 	ctx.restore();
 }
 
