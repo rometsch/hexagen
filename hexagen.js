@@ -78,6 +78,15 @@ var active_canvas = 0;
 var fileElem = el("fileElem");
 fileElem.addEventListener("change", readImage, false);
 
+el("svgtester").addEventListener("click", writeSvg, false);
+
+function writeSvg() {
+	dataURL = el("canvas4").toDataURL();
+	el("svgtester").getElementById("im").setAttribute('href',dataURL );
+	el("svgtester").getElementById("im").setAttribute('transform',"rotate(0)" );
+
+}
+
 // Initialize thumbnail canvas with mouse over event handler
 for (i=0; i<6; i++) {
 	canvas = el("canvas"+ i)
@@ -146,31 +155,32 @@ var ctxT=canvasT.getContext("2d");
 //
 var templateStd = [
 	// 1st main side
-	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	{ r   : [ 4, 4, 0, 0, 2, 2 ] ,
 	  p   : [ 7, 4, 1, 16, 13, 10 ] ,
 	  row : [ 0, 0, 0, 0, 0, 0 ] },
 	// 2nd main side
-	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	{ r   : [ 4, 4, 0, 0, 2, 2 ] ,
 	  p   : [ 9, 6, 3, 18, 15, 12 ] ,
 	  row : [ 0, 0, 0, 0, 0, 0 ] },
 	// 3rd main side
-	{ r   : [ 0, 4, 4, 2, 2, 0 ] ,
+	{ r   : [ 4, 4, 0, 0, 2, 2 ] ,
 	  p   : [ 11, 8, 5, 2, 17, 14 ] ,
 	  row : [ 0, 0, 0, 0, 0, 0 ] },
 
 	// 1st off side
-	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	{ r   : [ 4, 0, 0, 2, 2, 4 ] ,
 	  p   : [ 8, 3, 2, 15, 14, 9 ] ,
 	  row : [ 1, 1, 1, 1, 1, 1 ] },
 	// 2nd off side
-	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	{ r   : [ 4, 0, 0, 2, 2, 4 ] ,
 	  p   : [ 4, 17, 16, 11, 10, 5 ] ,
 	  row : [ 1, 1, 1, 1, 1, 1 ] },
 	// 3ed off side
-	{ r   : [ 4, 4, 2, 2, 0, 0 ] ,
+	{ r   : [ 4, 0, 0, 2, 2, 4 ] ,
 	  p   : [ 6, 19, 18, 13, 12, 7 ] ,
 	  row : [ 1, 1, 1, 1, 1, 1 ] }
 ]
+
 
 var testimages = [
 	"testimages/A.png",

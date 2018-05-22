@@ -16,13 +16,14 @@ body {
 	hexaflexagon generator
   </h2>
   <h3>
-	Alpha version : it produced wrong results.
+	Alpha version : it probably produced wrong results.
   </h3>
   <p>
 	Double click on the preview images to load a file or drag and drop them.
 	Single click on a preview image to change the orientation of the hexagon extracted.
 
   </p>
+  <button id="cats" onclick="loadFiles(catfiles)">Cats</button>
   <button id="mappingtester" onclick="loadFiles(testimages)">Test Mapping</button>
   <div>
 	<canvas id="canvas0" width=150 height=150></canvas>
@@ -35,11 +36,18 @@ body {
 	<canvas id="canvas5" width=150 height=150></canvas>
   </div>
 
-
-  <!-- <button id="cats" onclick="loadFiles(catfiles)">Cats</button> -->
   <canvas id="canvasTemplate" width=0 height=0></canvas>
 
   <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
+
+  <br/>
+
+  <svg id="svgtester" version="1.1"
+       xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+       width="200" height="200">
+	<image id="im" x="90" y="-65" width="128" height="146" transform="rotate(45)"
+		   href="cats/1.png"/>
+  </svg>
 
   <script src="hexagen.js"></script>
 
