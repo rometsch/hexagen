@@ -388,12 +388,12 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, heximg, ctx, baselen) {
 	ctx.drawImage(heximg.img, 0, 0, s*heximg.img.width, s*heximg.img.height);
 
 	// Stroke boundary
-	// ctx.beginPath();
-	// ctx.moveTo(x0, y0);
-	// ctx.lineTo(x1, y1);
-	// ctx.lineTo(x2, y2);
-	// ctx.closePath();
-	// ctx.stroke();
+	ctx.beginPath();
+	ctx.moveTo(x0, y0);
+	ctx.lineTo(x1, y1);
+	ctx.lineTo(x2, y2);
+	ctx.closePath();
+	ctx.stroke();
 
 	// restore the context to it's unclipped untransformed state
 	ctx.restore();
