@@ -15,12 +15,38 @@ body {
   <h2>
 	hexaflexagon generator
   </h2>
+  <p style="background-color:Tomato;">At the moment, you can only use images which have the same height as width.
+  E.g. use an image with 500px * 500px, or 1000px * 1000px ... This will be fixed soon!</p>
   <h3>
-	Alpha version : it probably produced wrong results.
+	How to?
   </h3>
+  <h4>Fold it.</h4>
+  <div>
+	<ul>
+	  <li>
+		Have a look at this excellent
+		<a href="http://www.puzzles.com/hexaflexagon/img/hexahexaflexagon_blank_template.pdf">hexaflexagon template</a> with instructions on how to fold it.
+	  </li>
+	</ul>
+  </div>
+  <h4>Print it to a real paper.</h4>
+  <div>
+	<ul>
+	  <li>Right-click on the large image at th bottom and click <b>view image</b> or however it is called in your browser.</li>
+	  <li>Copy the image, again with a right-click.</li>
+	  <li>Paste it into a Word/OpenOffice document and arrange it such that the image filles the long edge of the paper. Leave some room at the borders because printers usually can't print borderless.</li>
+	</ul>
+  </div>
+  <h4>Change the images.</h4>
+  <div>
+	<ul>
+	  <li>Double click on the preview images to load a file.</li>
+	  <li><b>or</b> simply drag and drop them.</li>
+	  <li>Single click on a preview image to change the orientation of the hexagon extracted.</li>
+	</ul>
+  </div>
   <p>
-	Double click on the preview images to load a file or drag and drop them.
-	Single click on a preview image to change the orientation of the hexagon extracted.
+
 
   </p>
   <button id="cats" onclick="loadFiles(catfiles)">Cats</button>
@@ -42,12 +68,12 @@ body {
 
   <br/>
 
-  <svg id="svgtester" version="1.1"
-       xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-       width="200" height="200">
-	<image id="im" x="90" y="-65" width="128" height="146" transform="rotate(45)"
-		   href="cats/1.png"/>
-  </svg>
+  <!-- <svg id="svgtester" version="1.1" -->
+  <!--      xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" -->
+  <!--      width="200" height="200"> -->
+  <!-- 	<image id="im" x="90" y="-65" width="128" height="146" transform="rotate(45)" -->
+  <!-- 		   href="cats/1.png"/> -->
+  <!-- </svg> -->
 
   <script src="hexagen.js"></script>
 
