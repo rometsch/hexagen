@@ -78,14 +78,14 @@ var active_canvas = 0;
 var fileElem = el("fileElem");
 fileElem.addEventListener("change", readImage, false);
 
-el("svgtester").addEventListener("click", writeSvg, false);
+// el("svgtester").addEventListener("click", writeSvg, false);
 
-function writeSvg() {
-	dataURL = el("canvas4").toDataURL();
-	el("svgtester").getElementById("im").setAttribute('href',dataURL );
-	el("svgtester").getElementById("im").setAttribute('transform',"rotate(0)" );
+// function writeSvg() {
+// 	dataURL = el("canvas4").toDataURL();
+// 	el("svgtester").getElementById("im").setAttribute('href',dataURL );
+// 	el("svgtester").getElementById("im").setAttribute('transform',"rotate(0)" );
 
-}
+// }
 
 // Initialize thumbnail canvas with mouse over event handler
 for (i=0; i<6; i++) {
@@ -197,6 +197,8 @@ var catfiles = [
 	"cats/4.png",
 	"cats/5.png",
 	"cats/6.png" ]
+
+loadFiles(testimages);
 
 function reset() {
 	imgs = []
@@ -387,7 +389,7 @@ function placeRotatedClippedTriangle(T, posx, posy, rot, heximg, ctx, baselen) {
 
 	ctx.drawImage(heximg.img, 0, 0, s*heximg.img.width, s*heximg.img.height);
 
-	// Stroke boundary
+	//Stroke boundary
 	ctx.beginPath();
 	ctx.moveTo(x0, y0);
 	ctx.lineTo(x1, y1);
